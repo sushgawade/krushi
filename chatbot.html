@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>कृषीमित्र</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('your-background-image.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #394240; /* Dark greenish color for text */
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      width: 40%; /* Adjust the width as needed */
+      min-height: 500px; /* Adjust the height as needed */
+      background-color: #e0f3df; /* Light gray background */
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .video-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      opacity: 0.8; /* Adjust as needed */
+    }
+
+    .content {
+      padding: 30px; /* Increased padding for better spacing */
+      
+      text-align: center;
+    }
+
+    #farmQ {
+      padding: 10px;
+      border: none;
+      border-radius: 20px;
+      margin-bottom: 20px; /* Increased margin for better spacing */
+      width: calc(100% - 20px);
+      outline: none;
+    }
+
+    button {
+      padding: 12px 24px; /* Increased padding for better visibility */
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      background-color: #4CAF50; /* Green color for button */
+      color: #fff;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049; /* Darker green color on hover */
+    }
+
+    #loader {
+      display: none;
+      margin-top: 10px;
+      color: #61dafb;
+    }
+
+    #recommendation {
+      margin-top: 30px; /* Increased margin for better spacing */
+      padding: 20px;
+      background-color: #e0ebeb; /* Light blue background */
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      max-height: 450px;
+      overflow-y: auto;
+    }
+
+    #recommendation > div {
+      margin-bottom: 20px;
+    }
+
+    #recommendation h3 {
+      font-size: 1.2em;
+      color: #3d6d71; /* Dark greenish color for headings */
+    }
+
+    #recommendation p {
+      margin: 10px 0;
+    }
+
+    #recommendation strong {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <video class="video-bg" autoplay loop muted>
+        <source src="20231120_134851.mp4" type="video/mp4"> <!-- Replace 'your-video.mp4' with your video file path -->
+      </video>
+      <div class="content">
+        <label for="farmQ">कृषीमित्र</label><br><br><br>
+        <input type="text" id="farmQ" placeholder="तुमचा प्रश्न विचारा ">
+        <p style="color:#394240;">
+          उदा. टोमॅटो ची लागण कशी करावी
+        </p>
+        <button onclick="getMovieRecommendation()"> विचारा > </button>
+        <div id="loader"><i class="fas fa-spinner fa-spin"></i> लोड होत आहे......</div>
+        <div id="recommendation"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  
+    function getMovieRecommendation() {
+        const farmQ = document.getElementById('farmQ').value;
+        const recommendationContainer = document.getElementById('recommendation');
+        const loader = document.getElementById('loader');
+  
+        // Display loader while waiting for the API response
+        loader.style.display = 'block';
+        recommendationContainer.innerHTML = '';
+  
+        // Your API endpoint
+        const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyAczOW8rQo7z7Tgw-A8rUIfLRBq_dxCnm0';
+  
+        // API request payload
+        const data = {
+          contents: [{
+            parts: [{
+              text: `answer this  ${farmQ}  you are krushimitr who will answer any question related to farming 
+  Be sure to answer in detail in multiple languages.answer in languages like  marathi, hindi, .`
+            }]
+          }]
+        };
+  
+        // Making API request
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(result => {
+          // Hide loader
+          loader.style.display = 'none';
+  
+          // Extracting and displaying the recommendation text
+          const recommendations = result.candidates[0].content.parts[0].text.split('\n\n');
+          recommendations.forEach(recommendation => {
+            const div = document.createElement('div');
+            div.innerHTML = recommendation;
+            recommendationContainer.appendChild(div);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching recommendation:', error);
+  
+          // Hide loader and display an error message
+          loader.style.display = 'none';
+          recommendationContainer.innerHTML = 'क्षमस्व माहिती मिळाली नाही , कृपया थोड्या वेळाने प्रयत्न करा .';
+        })
+      }
+    
+    
+    </script>
+</body>
+</html>

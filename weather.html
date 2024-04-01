@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5-दिवसांचा हवामान अंदाज</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-5 mb-4">5-दिवसांचा हवामान अंदाज</h1>
+    <form id="weatherForm">
+      <div class="form-group">
+        <label for="locationInput">स्थान प्रविष्ट करा:</label>
+        <input type="text" class="form-control" id="locationInput" placeholder="शहर, देश">
+      </div>
+      <button type="submit" class="btn btn-primary">अंदाज प्राप्त करा</button>
+    </form>
+    <div id="weatherForecast" class="mt-5"></div>
+  </div>
+
+  <script>
+    // OpenWeatherMap API कडे हवामान आकडे प्राप्त करण्यासाठी
+    function getWeatherForecast(location) {
+      const apiKey = 'd611df7d9144307017b5bf40becd63a9';
+      const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`;
+
+      $.get(apiUrl, function(data) {
+        displayWeatherForecast(data);
+      });
+    }
+
+    // हवामान अंदाज प्रदर्शित करण्यासाठी
+    function displayWeatherForecast(data) {
+      const forecastList = data.list.slice(0, 5); // पहिले 5 दिवसांचे अंदाज मिळवा
+
+      let forecastHTML = '<div class="row">';
+
+      forecastList.forEach((day, index) => {
+        const currentDate = new Date();
+        const date = new Date(currentDate.getTime() + (index * 24 * 60 * 60 * 1000));
+        const dayOfWeek = date.toLocaleDateString('mr-IN', { weekday: 'long' });
+        const iconUrl = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+
+        forecastHTML += `
+          <div class="col-md-2 mb-4">
+            <div class="card">
+              <img src="${iconUrl}" class="card-img-top" alt="हवामान चिन्ह">
+              <div class="card-body">
+                <h5 class="card-title">${dayOfWeek}</h5>
+                <p class="card-text">${day.weather[0].description}</p>
+                <p class="card-text">तापमान: ${day.main.temp}&#176;C</p>
+                <p class="card-text">रुस्ती: ${day.main.humidity}%</p>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      forecastHTML += '</div>';
+
+      $('#weatherForecast').html(forecastHTML);
+    }
+
+    // फॉर्म सबमिट हँडलर
+    $('#weatherForm').submit(function(event) {
+      event.preventDefault();
+      const location = $('#locationInput').val();
+      getWeatherForecast(location);
+    });
+  </script>
+</body>
+</html>
